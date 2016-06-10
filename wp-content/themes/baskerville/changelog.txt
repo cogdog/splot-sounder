@@ -1,0 +1,97 @@
+*** Baskerville changelog ***
+
+
+Version 1.15 (2014-09-26)
+-------------------------
+- Added styling for email input fields in the post content
+- Fixed so that images smaller than the featured media area is centered
+- Fixed the display of Disqus comments
+- Fixed so that other post types (ie the Jetpack portfolio post type) is displayed correctly
+
+
+Version 1.14 (2014-08-06)
+-------------------------
+- Optimized style.css
+- Fixed so that the scaling effect on featured images works in non-webkit browsers
+
+
+Version 1.13 (2014-08-05)
+-------------------------
+- Fixed an issue which would prevent WordPress Mediaelement.js style from loading
+- Minor CSS tweaks and fixes
+
+
+Version 1.12 (2014-08-02)
+-------------------------
+- Fixed a bug which made it so that the author email was always visible in the post meta, even if it had been set as hidden in the settings
+
+
+Version 1.11 (2014-07-31)
+-------------------------
+– Added form styling to the post content CSS to better support Contact Form 7 and other form based plugins
+- Added a function to prevent WordPress built-in medieaelement.js styles from kicking in
+- Improved the Masonry function in global.js to be leaner and meaner
+– Replaced the Masonry files included with the theme with the ones packaded with WordPress
+
+
+Version 1.10 (2014-07-31)
+-------------------------
+- Fixed so that plugins can add post thumbnail sizes when Baskerville is active
+
+
+Version 1.09 (2014-07-19)
+-------------------------
+- Fixed so that the post-image size is the same as the maximum width of the container
+
+
+Version 1.08 (2014-06-25)
+-------------------------
+- Removed a stray closing div from footer.php
+- Replaced the search field in the header with get_search_form();
+- Added sanitize_callback to theme customization in functions.php
+
+
+Version 1.07 (2014-06-12)
+-------------------------
+- Replaced esc_attr() with the_title_attribute() in link title attributes
+- Fixed a bug where the audio player would overflow in some browsers
+
+
+Version 1.06 (2014-06-11)
+-------------------------
+- Escaped the_title() in link title attributes
+- Increased the contrast of the post-excerpt element
+
+
+Version 1.05 (2014-06-09)
+-------------------------
+- Fixed a bug where template-archives.php would always display comments
+
+
+Version 1.04 (2014-06-08)
+-------------------------
+- Minor fixes and touch-ups to template-contributors.php
+- Realized that the image post format was missing, added it in
+
+
+Version 1.03 (2014-06-08)
+-------------------------
+- Fixed a bug in the search form in the header
+- Upped the resolution of home-g.png, author-w.png and the post-nav icons in the /2x/ folder
+- Adjusted font sizes and line heights of elements @ 600px
+
+
+Version 1.02 (2014-06-07)
+-------------------------
+- Added yet another missing text domain
+
+
+Version 1.01 (2014-06-07)
+-------------------------
+- Added support for custom background
+- Added missing text domains in template-contributors.php
+- Minor adjustments to style.css
+
+
+Version 1.00 (2014-06-07)
+-------------------------
