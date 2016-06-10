@@ -17,7 +17,7 @@ The options can allow you to create a simple Upload and go mode, but you can als
 
 * [SPLOT Sound Collector](http://splot.ca/sounder/) - the development site, stuff can and will break
 * [TRU Sound Pool](http://soundpool.trubox.ca/) - used for  workshops at TRU
-* [odcast, podcast, 1, 2, 3...](http://podcast123.trubox.ca/) a podcast workshop for the June 2016 Festival of Learning, Vancouver, BC
+* [podcast, podcast, 1, 2, 3...](http://podcast123.trubox.ca/) a podcast workshop for the June 2016 Festival of Learning, Vancouver, BC
 
 
 ## Requirements
