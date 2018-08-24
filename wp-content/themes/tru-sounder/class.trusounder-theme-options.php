@@ -1,6 +1,7 @@
 <?php
 // manages all of the theme options
 // heavy lifting via http://alisothegeek.com/2011/01/wordpress-settings-api-tutorial-1/
+// Revision Oct 27, 2017 as jQuery update killed TAB UI
 
 class trusounder_Theme_Options {
 
@@ -18,8 +19,13 @@ class trusounder_Theme_Options {
 		$this->get_settings();
 		
 		$this->sections['general'] = __( 'General Settings' );
-		$this->sections['docs']        = __( 'Documentation' );
 		$this->sections['reset']   = __( 'Reset to Defaults' );
+
+		// create a colllection of callbacks for each section heading
+		foreach ( $this->sections as $slug => $title ) {
+			$this->section_callbacks[$slug] = 'display_' . $slug;
+		}
+		
 
 		// enqueue scripts for media uploader
         add_action( 'admin_enqueue_scripts', 'trusounder_enqueue_options_scripts' );
@@ -35,17 +41,13 @@ class trusounder_Theme_Options {
 	public function add_pages() {
 		$admin_page = add_theme_page( 'TRU Sounder Options', 'TRU Sounder Options', 'manage_options', 'trusounder-options', array( &$this, 'display_page' ) );
 		
-		// give us javascript for this page
-		add_action( 'admin_print_scripts-' . $admin_page, array( &$this, 'scripts' ) );
-		
-		// and some pretty styling
-		add_action( 'admin_print_styles-' . $admin_page, array( &$this, 'styles' ) );
-	}
+		// documents page, but don't add to menu		
+		$docs_page = add_theme_page( 'TRU Sounder Documentation', '', 'manage_options', 'trusounder-docs', array( &$this, 'display_docs' ) );
+			}
 
 	/* HTML to display the theme options page */
 	public function display_page() {
 		echo '<div class="wrap">
-		<div class="icon32" id="icon-options-general"></div>
 		<h2>TRU Sounder Options</h2>';
 		
 		if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] == true )
@@ -54,38 +56,18 @@ class trusounder_Theme_Options {
 		echo '<form action="options.php" method="post" enctype="multipart/form-data">';
 
 			settings_fields( 'trusounder_options' );
-			echo '<div class="ui-tabs">
-				<ul class="ui-tabs-nav">';
+			
+			echo  '<h2 class="nav-tab-wrapper"><a class="nav-tab nav-tab-active" href="?page=trusounder-options">Settings</a>
+	<a class="nav-tab" href="?page=trusounder-docs">Documentation</a></h2>';
 
-			foreach ( $this->sections as $section_slug => $section )
-				echo '<li><a href="#' . $section_slug . '">' . $section . '</a></li>';
+		do_settings_sections( $_GET['page'] );
 
-			echo '</ul>';
-			do_settings_sections( $_GET['page'] );
-
-			echo '</div>
-			<p class="submit"><input name="Submit" type="submit" class="button-primary" value="' . __( 'Save Changes' ) . '" /></p>
-
-		</form>';
-		echo '<script type="text/javascript">
+			echo '<p class="submit"><input name="Submit" type="submit" class="button-primary" value="' . __( 'Save Changes' ) . '" /></p>			
+		</form>
+		</div>
+		
+		<script type="text/javascript">
 		jQuery(document).ready(function($) {
-			var sections = [];';
-			
-			foreach ( $this->sections as $section_slug => $section )
-				echo "sections['$section'] = '$section_slug';";
-			
-			echo 'var wrapped = $(".wrap h3").wrap("<div class=\"ui-tabs-panel\">");
-			wrapped.each(function() {
-				$(this).parent().append($(this).parent().nextUntil("div.ui-tabs-panel"));
-			});
-			$(".ui-tabs-panel").each(function(index) {
-				$(this).attr("id", sections[$(this).children("h3").text()]);
-				if (index > 0)
-					$(this).addClass("ui-tabs-hide");
-			});
-			$(".ui-tabs").tabs({
-				fx: { opacity: "toggle", duration: "fast" }
-			});
 			
 			$("input[type=text], textarea").each(function() {
 				if ($(this).val() == $(this).attr("placeholder") || $(this).val() == "")
@@ -104,8 +86,6 @@ class trusounder_Theme_Options {
 				}
 			});
 			
-			$(".wrap h3, .wrap table").show();
-			
 			// This will make the "warning" checkbox class really stand out when checked.
 			// I use it here for the Reset checkbox.
 			$(".warning").change(function() {
@@ -114,48 +94,8 @@ class trusounder_Theme_Options {
 				else
 					$(this).parent().css("background", "none").css("color", "inherit").css("fontWeight", "normal");
 			});
-			
-			// Browser compatibility
-			if ($.browser.mozilla) 
-			         $("form").attr("autocomplete", "off");
-			         
-		
-				//  via http://stackoverflow.com/a/14467706/2418186
-	
-				//  jQueryUI 1.10 and HTML5 ready
-				//      http://jqueryui.com/upgrade-guide/1.10/#removed-cookie-option 
-				//  Documentation
-				//      http://api.jqueryui.com/tabs/#option-active
-				//      http://api.jqueryui.com/tabs/#event-activate
-				//      http://balaarjunan.wordpress.com/2010/11/10/html5-session-storage-key-things-to-consider/
-				//
-				//  Define friendly index name
-				var index = "key";
-				//  Define friendly data store name
-				var dataStore = window.sessionStorage;
-				//  Start magic!
-				try {
-					// getter: Fetch previous value
-					var oldIndex = dataStore.getItem(index);
-				} catch(e) {
-					// getter: Always default to first tab in error state
-					var oldIndex = 0;
-				}
-				$(".ui-tabs").tabs({
-					// The zero-based index of the panel that is active (open)
-					active : oldIndex,
-					// Triggered after a tab has been activated
-					activate : function( event, ui ){
-						//  Get future value
-						var newIndex = ui.newTab.parent().children().index(ui.newTab);
-						//  Set future value
-						dataStore.setItem( index, newIndex ) 
-					}
-				}); 
-					 
-			});
-	</script>
-</div>';	
+		});
+		</script>';	
 	}
 			
 		/* Insert custom CSS */
@@ -165,6 +105,23 @@ class trusounder_Theme_Options {
 			wp_enqueue_style( 'trusounder-admin' );
 
 		}
+
+
+	/*  display documentation in a tab */
+	public function display_docs() {	
+		// This displays on the "Documentation" tab. 
+		
+	 	echo '<div class="wrap">
+		<h1>TRU Sounder Documentation</h1>
+		<h2 class="nav-tab-wrapper">
+		<a class="nav-tab" href="?page=trusounder-options">Settings</a>
+		<a class="nav-tab nav-tab-active" href="?page=trusounder-docs">Documentation</a></h2>';
+		
+		include( get_stylesheet_directory() . '/includes/trusounder-theme-options-docs.php');
+		
+		echo '</div>';		
+	}
+
 
 	/* Define all settings and their defaults */
 	public function get_settings() {
@@ -242,62 +199,15 @@ class trusounder_Theme_Options {
 		'std'    =>  trusounder_author_user_check( 'sounder' ),
 		'type'    => 'heading'
 		);	
-		
 
-/*
-		$this->settings['captcha_heading'] = array(
-		'section' => 'general',
-		'title' 	=> '' ,// Not used for headings.
-		'desc'   => 'Captcha Settings', 
-		'std'    => 'Not current used, but may set up in future.',
-		'type'    => 'heading'
-		);		
 
-				
-		$this->settings['use_captcha'] = array(
-			'section' => 'general',
-			'title'   => __( 'Use reCaptcha' ),
-			'desc'    => __( 'Activate a google captcha for all submission forms; <a href="https://www.google.com/recaptcha/admin/create" target="_blank">get your access keys</a>' ),
-			'type'    => 'checkbox',
-			'std'     => 0 // Set to 1 to be checked by default, 0 to be unchecked by default.
-		);
-		
-		
-		$this->settings['captcha_style'] = array(
-		'section' => 'general',
-		'title'   => __( 'Captcha Style' ),
-		'desc'    => __( 'Visual style for captchas, see <a href="https://developers.google.com/recaptcha/docs/customization?csw=1" target="_blank">examples of styles</a>.' ),
-		'type'    => 'select',
-		'std'     => 'red',
-		'choices' => array(
-			'red' => 'Red',
-			'white' => 'White',
-			'blackglass' => 'Black',
-			'clean' => 'Clean',
-		)
-	);
-	
-		
-		$this->settings['captcha_pub'] = array(
-			'title'   => __( 'reCaptcha Public Key' ),
-			'desc'    => __( '' ),
+		$this->settings['pkey'] = array(
+			'title'   => __( 'Author Account Password' ),
+			'desc'    => __( 'When you create the account, we suggest using the generated strong password, make sure you save it so you can add it here.' ),
 			'std'     => '',
-			'type'    => 'text',
+			'type'    => 'password',
 			'section' => 'general'
 		);
-		
-		$this->settings['captcha_pri'] = array(
-			'title'   => __( 'reCaptcha Private Key' ),
-			'desc'    => __( '' ),
-			'std'     => '',
-			'type'    => 'text',
-			'section' => 'general'
-		);
-
-*/
-
-				
-
 			
 		/* Reset
 		===========================================*/
@@ -314,9 +224,14 @@ class trusounder_Theme_Options {
 		
 	}
 	
-	/* Description for section */
-	public function display_section() {
-		// code
+	public function display_general() {
+		// section heading for general setttings
+		echo '<p>These settings manaage the behavior and appearance of your TRU Sounder site. There are quite a few of them!</p>';		
+	}
+
+
+	public function display_reset() {
+		// section heading for reset section setttings
 	}
 
 	/* HTML output for individual settings */
@@ -409,7 +324,7 @@ class trusounder_Theme_Options {
 				break;
 
 			case 'password':
-				echo '<input class="regular-text' . $field_class . '" type="password" id="' . $id . '" name="trusounder_options[' . $id . ']" value="' . esc_attr( $options[$id] ) . '" />';
+				echo '<input class="regular-text' . $field_class . '" type="text" id="' . $id . '" name="trusounder_options[' . $id . ']" value="' . esc_attr( $options[$id] ) . '" /> <input type="button" id="showHide" value="Show" /> ';
 
 				if ( $desc != '' )
 					echo '<br /><span class="description">' . $desc . '</span>';

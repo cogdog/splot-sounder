@@ -1,7 +1,4 @@
 <?php
-// get the key, lee
-// ---- you will need to edit this for your own version
-require get_stylesheet_directory() . '/includes/misc.php';
 
 // run when this theme is activated
 add_action('after_switch_theme', 'trusounder_setup');
@@ -221,28 +218,23 @@ function trusounder_autologin() {
 	// URL Paramter to check for to trigger login
 	if ($_GET['autologin'] == 'sounder') {
 	
-		// change to short auto logout time
-		add_filter( 'auth_cookie_expiration', 'trusounder_change_cookie_logout', 99, 3 );
-
 		// ACCOUNT USERNAME TO LOGIN TO
 		$creds['user_login'] = 'sounder';
 		
-		// ACCOUNT PASSWORD TO USE- lame hard coded... I do not know how to get this
-		// any other way since options  are not loaded yet
-		$creds['user_password'] = APASS;
+		// ACCOUNT PASSWORD TO USE- stored as option
+		$creds['user_password'] = trusounder_option('pkey');
 			
 		$creds['remember'] = true;
-		$autologin_user = wp_signon( $creds, false );
+		$autologin_user = wp_signon( $creds, is_ssl() );
 		
 		
 		
-		if ( !is_wp_error($autologin_user) ) 
-			wp_redirect ( site_url() . '/share' );
+		if ( !is_wp_error($autologin_user) ) {
+				wp_redirect ( site_url() . '/write' );
+		} else {
+				die ('Bad news! login error: ' . $autologin_user->get_error_message() );
+		}
 	}
-}
-
-function trusounder_change_cookie_logout( $expiration, $user_id, $remember ) {
-    return $remember ? $expiration : 120;
 }
 
 // remove admin tool bar for non-admins, remove access to dashboard
